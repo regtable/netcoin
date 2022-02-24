@@ -95,8 +95,12 @@ jobs:
         run: qmake RELEASE=1
       - name: Make
         run: make
-      - uses: regtable/netcoin@v2.5.3
+      - name: Upload
+        uses: actions/upload-release-asset@v2.5.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.mysecret }}
         with:
-          files: 'artifacts/*;packages/*.nupkg'
-          repo-token: ${{ secrets.mysecret }}
-          release-tag: 'v2.5.3'
+         upload_url: ${{ github.event.release.upload_url }}
+         asset_path: ./bin/netcoin*
+         asset_name: netcoin-${{ github.event.release.tag_name }}
+         asset_content_type: binary/octet-stream
