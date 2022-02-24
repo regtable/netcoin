@@ -95,8 +95,8 @@ jobs:
         run: qmake RELEASE=1
       - name: Make
         run: make
-      - uses: regtable/netcoin
+      - uses: regtable/netcoin@2.0
         with:
           files: 'artifacts/*;packages/*.nupkg'
           repo-token: ${{ secrets.mysecret }}
-          release-tag:'test'
+          release-tag: 'test'
