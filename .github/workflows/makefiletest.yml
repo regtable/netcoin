@@ -95,9 +95,8 @@ jobs:
         run: qmake RELEASE=1
       - name: Make
         run: make
-      - uses: actions/upload-artifact@v2
+      - uses: regtable/netcoin
         with:
-          name: netcoin-${{ github.sha }}-${{ matrix.name }}
-          path: |
-            netcoin-qt
-            netcoin.exe
+          files: 'artifacts/*;packages/*.nupkg'
+          repo-token: ${{ secrets.mysecret }}
+          release-tag:'test'
