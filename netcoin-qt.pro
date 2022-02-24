@@ -160,8 +160,8 @@ macx: {
     ICON = src/mac/artwork/NetCoin.icns
     QMAKE_INFO_PLIST=src/mac/Info.plist
     # osx 10.9 has changed the stdlib default to libc++. To prevent some link error, you may need to use libstdc++
-   !macx:QMAKE_CXXFLAGS += -stdlib=libstdc++ -ldl
-    macx:QMAKE_CXXFLAGS += -stdlib=libc++ =ldl
+   !macx:QMAKE_CXXFLAGS += -stdlib=libstdc++
+    macx:QMAKE_CXXFLAGS += -stdlib=libc++ 
     QMAKE_CFLAGS_THREAD += -pthread
     QMAKE_CXXFLAGS_THREAD += -pthread
 }
@@ -499,10 +499,10 @@ windows:LIBS += -lboost_chrono$$BOOST_LIB_SUFFIX
   windows:QMAKE_CFLAGS_THREAD += -mthread
     windows:QMAKE_CXXFLAGS_THREAD += -mthread
 contains(RELEASE, 1) {
-    !windows:!macx {
-        # Linux: turn dynamic linking back on for c/c++ runtime libraries
-        LIBS += -Wl,-Bdynamic
-    }
+!windows:!macx {
+    DEFINES += LINUX
+    LIBS += -lrt -ldl
+}
 }
 
 system($$QMAKE_LRELEASE -silent $$_PRO_FILE_)
