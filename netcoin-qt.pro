@@ -53,8 +53,8 @@ contains(RELEASE, 1) {
     macx:QMAKE_MACOSX_DEPLOYMENT_TARGET=10.6
     !windows:!macx {
         # Linux: static link
-        LIBS += -Wl,-Bstatic,-Wl,--start-group
-    }
+        LIBS += -Wl,-Bstatic
+        }
 }
 
 !win32 {
