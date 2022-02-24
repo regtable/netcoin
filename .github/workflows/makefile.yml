@@ -41,7 +41,7 @@ jobs:
           - name: x86_64-win
             host: x86_64-w64-mingw32
             arch: "i386"
-            os: ubuntu-18.4
+            os: ubuntu-18.04
             packages: python3 nsis g++-mingw-w64-x86-64 wine64 bc wine-binfmt libboost-dev libboost-all-dev libssl1.0-dev libdb++-dev libminiupnpc-dev libleveldb-dev 
             postinstall: |
               sudo update-alternatives --set x86_64-w64-mingw32-gcc  /usr/bin/x86_64-w64-mingw32-gcc-posix
