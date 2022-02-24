@@ -160,8 +160,8 @@ macx: {
     ICON = src/mac/artwork/NetCoin.icns
     QMAKE_INFO_PLIST=src/mac/Info.plist
     # osx 10.9 has changed the stdlib default to libc++. To prevent some link error, you may need to use libstdc++
-   !macx:QMAKE_CXXFLAGS += -stdlib=libstdc++
-    macx:QMAKE_CXXFLAGS += -stdlib=libc++
+   !macx:QMAKE_CXXFLAGS += -stdlib=libstdc++ -ldl
+    macx:QMAKE_CXXFLAGS += -stdlib=libc++ =ldl
     QMAKE_CFLAGS_THREAD += -pthread
     QMAKE_CXXFLAGS_THREAD += -pthread
 }
