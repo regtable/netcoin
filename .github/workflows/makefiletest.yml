@@ -96,7 +96,7 @@ jobs:
       - name: Make
         run: make
       - name: Upload
-        uses: actions/upload-release-asset@v2.5.3
+        uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.mysecret }}
         with:
