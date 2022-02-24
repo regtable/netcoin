@@ -501,7 +501,7 @@ windows:LIBS += -lboost_chrono$$BOOST_LIB_SUFFIX
 contains(RELEASE, 1) {
 !windows:!macx {
     DEFINES += LINUX
-    LIBS += -lrt -ldl
+    LIBS += -lrt -ldl -Wl,-Bdynamic
 }
 }
 
