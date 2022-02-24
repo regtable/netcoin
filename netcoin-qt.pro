@@ -15,7 +15,7 @@ win32 {
     CONFIG += debug_and_release
 }
 CONFIG += static
-
+set(CMAKE_CXX_LINK_EXECUTABLE "${CMAKE_CXX_LINK_EXECUTABLE} -ldl")
 greaterThan(QT_MAJOR_VERSION, 4) {
     QT += widgets
 
