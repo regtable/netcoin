@@ -53,7 +53,7 @@ contains(RELEASE, 1) {
     macx:QMAKE_MACOSX_DEPLOYMENT_TARGET=10.6
     !windows:!macx {
         # Linux: static link
-        LIBS += -Wl,-Bstatic
+        LIBS += -Wl,-Bstatic,-Wl,--start-group
     }
 }
 
@@ -65,7 +65,7 @@ QMAKE_LFLAGS *= -fstack-protector-all --param ssp-buffer-size=1 -lm
 # This can be enabled for Windows, when we switch to MinGW >= 4.4.x.
 }
 # for extra security on Windows: enable ASLR and DEP via GCC linker flags
-win32:QMAKE_LFLAGS *= -Wl,--dynamicbase -Wl,--nxcompat
+win32:QMAKE_LFLAGS *= -Wl,--dynamicbase -Wl,--nxcompat,-Wl,--start-group
 win32:QMAKE_LFLAGS += -static-libgcc -static-libstdc++
 win32:QMAKE_LFLAGS *= -static
 
