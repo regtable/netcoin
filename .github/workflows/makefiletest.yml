@@ -34,14 +34,14 @@ jobs:
         include:
           - name: x86_64-linux
             host: x86_64-unknown-linux-gnu
-            os: ubuntu-18.04
+            os: ubuntu-16.1
             packages: bc python3-zmq libboost-dev libboost-all-dev libssl1.0-dev libdb++-dev libminiupnpc-dev libleveldb-dev 
             run-tests: true
             goal: install
           - name: x86_64-win
             host: x86_64-w64-mingw32
             arch: "i386"
-            os: ubuntu-18.04
+            os: ubuntu-16.1
             packages: python3 nsis g++-mingw-w64-x86-64 wine64 bc wine-binfmt libboost-dev libboost-all-dev libssl=1.0.2n libdb++-dev libminiupnpc-dev libleveldb-dev 
             postinstall: |
               sudo update-alternatives --set x86_64-w64-mingw32-gcc  /usr/bin/x86_64-w64-mingw32-gcc-posix
@@ -53,8 +53,8 @@ jobs:
             goal: install
           - name: x86_64-macos
             host: x86_64-apple-darwin11
-            os: ubuntu-18.04
-            packages: cmake imagemagick libcap-dev librsvg2-bin libz-dev libtiff-tools libtinfo5 python3-setuptools xorriso libtinfo5 libboost-dev libboost-all-dev libssl1.0-dev libdb++-dev libminiupnpc-dev libleveldb-dev 
+            os: ubuntu-16.1
+            packages: cmake imagemagick libcap-dev librsvg2-bin libz-dev libtiff-tools libtinfo5 python3-setuptools xorriso libtinfo5 libboost-dev libboost-all-dev libssl1.0 libdb++-dev libminiupnpc-dev libleveldb-dev 
             run-tests: false
             dep-opts: ""
             config-opts: "--enable-gui=qt5 --enable-reduce-exports"
