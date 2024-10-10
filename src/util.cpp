@@ -29,10 +29,10 @@ namespace boost {
 
 #include <boost/program_options/detail/config_file.hpp>
 #include <boost/program_options/parsers.hpp>
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include <boost/filesystem/fstream.hpp>
 #include <boost/foreach.hpp>
-#include <boost/thread.hpp>
+#include <thread>
 #include <openssl/crypto.h>
 #include <openssl/rand.h>
 #include <stdarg.h>
@@ -223,7 +223,7 @@ inline int OutputDebugStringF(const char* pszFormat, ...)
 
         if (!fileout)
         {
-            boost::filesystem::path pathDebug = GetDataDir() / "debug.log";
+            std::filesystem::path pathDebug = GetDataDir() / "debug.log";
             fileout = fopen(pathDebug.string().c_str(), "a");
             if (fileout) setbuf(fileout, NULL); // unbuffered
         }
@@ -236,7 +236,7 @@ inline int OutputDebugStringF(const char* pszFormat, ...)
             // reopen the log file, if requested
             if (fReopenDebugLog) {
                 fReopenDebugLog = false;
-                boost::filesystem::path pathDebug = GetDataDir() / "debug.log";
+                std::filesystem::path pathDebug = GetDataDir() / "debug.log";
                 if (freopen(pathDebug.string().c_str(),"a",fileout) != NULL)
                     setbuf(fileout, NULL); // unbuffered
             }
@@ -1009,9 +1009,9 @@ void PrintExceptionContinue(std::exception* pex, const char* pszThread)
     strMiscWarning = message;
 }
 
-boost::filesystem::path GetDefaultDataDir()
+std::filesystem::path GetDefaultDataDir()
 {
-    namespace fs = boost::filesystem;
+    namespace fs = std::filesystem;
     // Windows < Vista: C:\Documents and Settings\Username\Application Data\NetCoin
     // Windows >= Vista: C:\Users\Username\AppData\Roaming\NetCoin
     // Mac: ~/Library/Application Support/NetCoin
@@ -1038,9 +1038,9 @@ boost::filesystem::path GetDefaultDataDir()
 #endif
 }
 
-const boost::filesystem::path &GetDataDir(bool fNetSpecific)
+const std::filesystem::path &GetDataDir(bool fNetSpecific)
 {
-    namespace fs = boost::filesystem;
+    namespace fs = std::filesystem;
 
     static fs::path pathCached[2];
     static CCriticalSection csPathCached;
@@ -1075,9 +1075,9 @@ const boost::filesystem::path &GetDataDir(bool fNetSpecific)
     return path;
 }
 
-boost::filesystem::path GetConfigFile()
+std::filesystem::path GetConfigFile()
 {
-    boost::filesystem::path pathConfigFile(GetArg("-conf", "netcoin.conf"));
+    std::filesystem::path pathConfigFile(GetArg("-conf", "netcoin.conf"));
 
      if (!pathConfigFile.is_complete()) pathConfigFile = GetDataDir(false)/ pathConfigFile;
 
@@ -1096,11 +1096,11 @@ string random(int len)
 void ReadConfigFile(map<string, string>& mapSettingsRet,
                     map<string, vector<string> >& mapMultiSettingsRet)
 {
-    boost::filesystem::ifstream streamConfigCheck(GetConfigFile());
+    std::filesystem::ifstream streamConfigCheck(GetConfigFile());
     if (!streamConfigCheck.good())
     {
         // Open the new config file
-        boost::filesystem::ofstream pathConfigFile(GetConfigFile());
+        std::filesystem::ofstream pathConfigFile(GetConfigFile());
 
         // Construct the new config file
         std::string configLine = "listen=1\nserver=1\ndaemon=1\nrpcuser=";
@@ -1114,7 +1114,7 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
         pathConfigFile.close();
     }
 
-    boost::filesystem::ifstream streamConfig(GetConfigFile());
+    std::filesystem::ifstream streamConfig(GetConfigFile());
     // if (!streamConfig.good())
     //    return; // No NetCoin.conf file is OK
 
@@ -1135,15 +1135,15 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
     }
 }
 
-boost::filesystem::path GetPidFile()
+std::filesystem::path GetPidFile()
 {
-    boost::filesystem::path pathPidFile(GetArg("-pid", "netcoind.pid"));
+    std::filesystem::path pathPidFile(GetArg("-pid", "netcoind.pid"));
     if (!pathPidFile.is_complete()) pathPidFile = GetDataDir() / pathPidFile;
     return pathPidFile;
 }
 
 #ifndef WIN32
-void CreatePidFile(const boost::filesystem::path &path, pid_t pid)
+void CreatePidFile(const std::filesystem::path &path, pid_t pid)
 {
     FILE* file = fopen(path.string().c_str(), "w");
     if (file)
@@ -1154,7 +1154,7 @@ void CreatePidFile(const boost::filesystem::path &path, pid_t pid)
 }
 #endif
 
-bool RenameOver(boost::filesystem::path src, boost::filesystem::path dest)
+bool RenameOver(std::filesystem::path src, std::filesystem::path dest)
 {
 #ifdef WIN32
     return MoveFileExA(src.string().c_str(), dest.string().c_str(),
@@ -1188,7 +1188,7 @@ int GetFilesize(FILE* file)
 void ShrinkDebugFile()
 {
     // Scroll debug.log if it's getting too big
-    boost::filesystem::path pathLog = GetDataDir() / "debug.log";
+    std::filesystem::path pathLog = GetDataDir() / "debug.log";
     FILE* file = fopen(pathLog.string().c_str(), "r");
     if (file && GetFilesize(file) > 10 * 1000000)
     {
@@ -1391,9 +1391,9 @@ std::string FormatSubVersion(const std::string& name, int nClientVersion, const 
 }
 
 #ifdef WIN32
-boost::filesystem::path GetSpecialFolderPath(int nFolder, bool fCreate)
+std::filesystem::path GetSpecialFolderPath(int nFolder, bool fCreate)
 {
-    namespace fs = boost::filesystem;
+    namespace fs = std::filesystem;
 
     char pszPath[MAX_PATH] = "";
 
@@ -1445,8 +1445,8 @@ bool NewThread(void(*pfn)(void*), void* parg)
 {
     try
     {
-        boost::thread(pfn, parg); // thread detaches when out of scope
-    } catch(boost::thread_resource_error &e) {
+        std::thread(pfn, parg); // thread detaches when out of scope
+    } catch(std::thread_resource_error &e) {
         printf("Error creating thread: %s\n", e.what());
         return false;
     }

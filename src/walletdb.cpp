@@ -8,7 +8,7 @@
 #include "wallet.h"
 
 // #include <boost/version.hpp>
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 using namespace std;
 using namespace boost;
@@ -583,7 +583,7 @@ DBErrors CWalletDB::LoadWallet(CWallet* pwallet)
         }
         pcursor->close();
     }
-    catch (boost::thread_interrupted) {
+    catch (std::thread_interrupted) {
         throw;
     }
     catch (...) {

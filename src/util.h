@@ -23,8 +23,8 @@
 #include <vector>
 #include <string>
 
-#include <boost/thread.hpp>
-#include <boost/filesystem.hpp>
+#include <thread>
+#include <filesystem>
 #include <boost/filesystem/path.hpp>
 #include <boost/date_time/gregorian/gregorian_types.hpp>
 #include <boost/date_time/posix_time/posix_time_types.hpp>
@@ -139,7 +139,7 @@ inline void Sleep(int64 n)
 {
     /*Boost has a year 2038 problem— if the request sleep time is past epoch+2^31 seconds the sleep returns instantly.
       So we clamp our sleeps here to 10 years and hope that boost is fixed by 2028.*/
-    boost::thread::sleep(boost::get_system_time() + boost::posix_time::milliseconds(n>315576000000LL?315576000000LL:n));
+    std::thread::sleep(boost::get_system_time() + boost::posix_time::milliseconds(n>315576000000LL?315576000000LL:n));
 }
 #endif
 
@@ -212,17 +212,17 @@ bool WildcardMatch(const char* psz, const char* mask);
 bool WildcardMatch(const std::string& str, const std::string& mask);
 void FileCommit(FILE *fileout);
 int GetFilesize(FILE* file);
-bool RenameOver(boost::filesystem::path src, boost::filesystem::path dest);
-boost::filesystem::path GetDefaultDataDir();
-const boost::filesystem::path &GetDataDir(bool fNetSpecific = true);
-boost::filesystem::path GetConfigFile();
-boost::filesystem::path GetPidFile();
+bool RenameOver(std::filesystem::path src, std::filesystem::path dest);
+std::filesystem::path GetDefaultDataDir();
+const std::filesystem::path &GetDataDir(bool fNetSpecific = true);
+std::filesystem::path GetConfigFile();
+std::filesystem::path GetPidFile();
 #ifndef WIN32
-void CreatePidFile(const boost::filesystem::path &path, pid_t pid);
+void CreatePidFile(const std::filesystem::path &path, pid_t pid);
 #endif
 void ReadConfigFile(std::map<std::string, std::string>& mapSettingsRet, std::map<std::string, std::vector<std::string> >& mapMultiSettingsRet);
 #ifdef WIN32
-boost::filesystem::path GetSpecialFolderPath(int nFolder, bool fCreate = true);
+std::filesystem::path GetSpecialFolderPath(int nFolder, bool fCreate = true);
 #endif
 void ShrinkDebugFile();
 int GetRandInt(int nMax);
@@ -578,10 +578,10 @@ inline uint32_t ByteReverse(uint32_t value)
 // Standard wrapper for do-something-forever thread functions.
 // "Forever" really means until the thread is interrupted.
 // Use it like:
-//   new boost::thread(boost::bind(&LoopForever<void (*)()>, "dumpaddr", &DumpAddresses, 900000));
+//   new std::thread(std::bind(&LoopForever<void (*)()>, "dumpaddr", &DumpAddresses, 900000));
 // or maybe:
-//    boost::function<void()> f = boost::bind(&FunctionWithArg, argument);
-//    threadGroup.create_thread(boost::bind(&LoopForever<boost::function<void()> >, "nothing", f, milliseconds));
+//    boost::function<void()> f = std::bind(&FunctionWithArg, argument);
+//    threadGroup.create_thread(std::bind(&LoopForever<boost::function<void()> >, "nothing", f, milliseconds));
 template <typename Callable> void LoopForever(const char* name,  Callable func, int64_t msecs)
 {
     std::string s = strprintf("netcoin-%s", name);
@@ -595,7 +595,7 @@ template <typename Callable> void LoopForever(const char* name,  Callable func, 
             func();
         }
     }
-    catch (boost::thread_interrupted)
+    catch (std::thread_interrupted)
     {
         printf("%s thread stop\n", name);
         throw;
@@ -618,7 +618,7 @@ template <typename Callable> void TraceThread(const char* name,  Callable func)
         func();
         printf("%s thread exit\n", name);
     }
-    catch (boost::thread_interrupted)
+    catch (std::thread_interrupted)
     {
         printf("%s thread interrupt\n", name);
         throw;

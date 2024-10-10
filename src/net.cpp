@@ -1395,7 +1395,7 @@ void ThreadMapPort2(void* parg)
             // MilliSleep(2000);
             // i++;
         }
-        catch (boost::thread_interrupted)
+        catch (std::thread_interrupted)
         {
             r = UPNP_DeletePortMapping(urls.controlURL, data.first.servicetype, port.c_str(), "TCP", 0);
             printf("UPNP_DeletePortMapping() returned : %d\n", r);
@@ -1421,7 +1421,7 @@ void ThreadMapPort2(void* parg)
 void MapPort(bool fUseUPnP)
 {
     // if (fUseUPnP && vnThreadsRunning[THREAD_UPNP] < 1)
-    static boost::thread* upnp_thread = NULL;
+    static std::thread* upnp_thread = NULL;
 
     if (fUseUPnP)
     {
@@ -1432,8 +1432,8 @@ void MapPort(bool fUseUPnP)
             upnp_thread->join();
             delete upnp_thread;
         }
-        // upnp_thread = new boost::thread(boost::bind(&TraceThread<boost::function<void()> >, "upnp", &ThreadMapPort));
-        upnp_thread = new boost::thread(boost::bind(&TraceThread<void (*)()>, "upnp", &ThreadMapPort));
+        // upnp_thread = new std::thread(std::bind(&TraceThread<boost::function<void()> >, "upnp", &ThreadMapPort));
+        upnp_thread = new std::thread(std::bind(&TraceThread<void (*)()>, "upnp", &ThreadMapPort));
     }
     else if (upnp_thread) {
         upnp_thread->interrupt();
@@ -2258,7 +2258,7 @@ bool BindListenPort(const CService &addrBind, string& strError)
     return true;
 }
 
-void static Discover(boost::thread_group& threadGroup)
+void static Discover(std::thread_group& threadGroup)
 {
     if (!fDiscover)
         return;
@@ -2315,9 +2315,9 @@ void static Discover(boost::thread_group& threadGroup)
 }
 
 // void StartNode(void* parg)
-void StartNode(boost::thread_group& threadGroup)
+void StartNode(std::thread_group& threadGroup)
 {
-    // boost::thread_group* threadGroup = (boost::thread_group*)parg;
+    // std::thread_group* threadGroup = (std::thread_group*)parg;
 
     // Make this thread recognisable as the startup thread
     // RenameThread("netcoin-start");
@@ -2343,8 +2343,8 @@ void StartNode(boost::thread_group& threadGroup)
         // if (!NewThread(ThreadDNSAddressSeed, NULL))
         //    printf("Error: NewThread(ThreadDNSAddressSeed) failed\n");
 
-        // threadGroup.create_thread(boost::bind(&TraceThread<boost::function<void()> >, "dnsseed", &ThreadDNSAddressSeed));
-        threadGroup.create_thread(boost::bind(&TraceThread<void (*)()>, "dnsseed", &ThreadDNSAddressSeed));
+        // threadGroup.create_thread(std::bind(&TraceThread<boost::function<void()> >, "dnsseed", &ThreadDNSAddressSeed));
+        threadGroup.create_thread(std::bind(&TraceThread<void (*)()>, "dnsseed", &ThreadDNSAddressSeed));
 
 #ifdef USE_UPNP
     // Map ports with UPnP
@@ -2360,28 +2360,28 @@ void StartNode(boost::thread_group& threadGroup)
     // Send and receive from sockets, accept connections
     // if (!NewThread(ThreadSocketHandler, NULL))
     //    printf("Error: NewThread(ThreadSocketHandler) failed\n");
-    threadGroup.create_thread(boost::bind(&TraceThread<void (*)()>, "net", &ThreadSocketHandler));
+    threadGroup.create_thread(std::bind(&TraceThread<void (*)()>, "net", &ThreadSocketHandler));
 
     // Initiate outbound connections from -addnode
     // if (!NewThread(ThreadOpenAddedConnections, NULL))
     //    printf("Error: NewThread(ThreadOpenAddedConnections) failed\n");
-    threadGroup.create_thread(boost::bind(&TraceThread<void (*)()>, "addcon", &ThreadOpenAddedConnections));
+    threadGroup.create_thread(std::bind(&TraceThread<void (*)()>, "addcon", &ThreadOpenAddedConnections));
 
     // Initiate outbound connections
     // if (!NewThread(ThreadOpenConnections, NULL))
     //    printf("Error: NewThread(ThreadOpenConnections) failed\n");
-    threadGroup.create_thread(boost::bind(&TraceThread<void (*)()>, "opencon", &ThreadOpenConnections));
+    threadGroup.create_thread(std::bind(&TraceThread<void (*)()>, "opencon", &ThreadOpenConnections));
 
     // Process messages
     // if (!NewThread(ThreadMessageHandler, NULL))
     //    printf("Error: NewThread(ThreadMessageHandler) failed\n");
-    threadGroup.create_thread(boost::bind(&TraceThread<void (*)()>, "msghand", &ThreadMessageHandler));
+    threadGroup.create_thread(std::bind(&TraceThread<void (*)()>, "msghand", &ThreadMessageHandler));
 
     // Dump network addresses
     // if (!NewThread(ThreadDumpAddress, NULL))
     //    printf("Error; NewThread(ThreadDumpAddress) failed\n");
-    // threadGroup.create_thread(boost::bind(&LoopForever<void (*)()>, "dumpaddr", &DumpAddresses, 10000));
-    threadGroup.create_thread(boost::bind(&LoopForever<void (*)()>, "dumpaddr", &DumpAddresses, DUMP_ADDRESSES_INTERVAL * 1000));
+    // threadGroup.create_thread(std::bind(&LoopForever<void (*)()>, "dumpaddr", &DumpAddresses, 10000));
+    threadGroup.create_thread(std::bind(&LoopForever<void (*)()>, "dumpaddr", &DumpAddresses, DUMP_ADDRESSES_INTERVAL * 1000));
 
     // Generate coins in the background
     //GenerateBitcoins(GetBoolArg("-gen", false), pwalletMain);
@@ -2391,7 +2391,7 @@ void StartNode(boost::thread_group& threadGroup)
     //else
         // if (!NewThread(ThreadStakeMiner, pwalletMain))
         //    printf("Error: NewThread(ThreadStakeMiner) failed\n");
-     //   threadGroup.create_thread(boost::bind(&ThreadStakeMiner, pwalletMain));
+     //   threadGroup.create_thread(std::bind(&ThreadStakeMiner, pwalletMain));
 }
 
 bool StopNode()

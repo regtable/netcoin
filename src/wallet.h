@@ -24,8 +24,8 @@
 #include <stdexcept>
 
 #include <boost/shared_ptr.hpp>
-#include <boost/regex.hpp>
-#include <boost/thread.hpp>
+#include <regex>
+#include <thread>
 extern bool fGlobalStakeForCharity;
 
 extern bool fWalletUnlockStakingOnly;

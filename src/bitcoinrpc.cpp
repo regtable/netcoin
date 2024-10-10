@@ -24,7 +24,7 @@
 #include <boost/asio/ip/v6_only.hpp>
 #include <boost/asio/ssl.hpp>
 #include <boost/bind.hpp>
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include <boost/filesystem/fstream.hpp>
 #include <boost/foreach.hpp>
 #include <boost/iostreams/concepts.hpp>
@@ -55,7 +55,7 @@ static std::string strRPCUserColonPass;
 static asio::io_service* rpc_io_service = NULL;
 static map<string, boost::shared_ptr<deadline_timer> > deadlineTimers;
 static ssl::context* rpc_ssl_context = NULL;
-static boost::thread_group* rpc_worker_group = NULL;
+static std::thread_group* rpc_worker_group = NULL;
 /*
 static inline unsigned short GetDefaultRPCPort()
 {
@@ -774,7 +774,7 @@ static void RPCListen(boost::shared_ptr< basic_socket_acceptor<Protocol> > accep
     acceptor->async_accept(
             conn->sslStream.lowest_layer(),
             conn->peer,
-            boost::bind(&RPCAcceptHandler<Protocol>,
+            std::bind(&RPCAcceptHandler<Protocol>,
                 acceptor,
                 boost::ref(context),
                 fUseSSL,
@@ -984,9 +984,9 @@ void StartRPCThreads()
     vnThreadsRunning[THREAD_RPCLISTENER]++;
     StopRequests();
  */
-    rpc_worker_group = new boost::thread_group();
+    rpc_worker_group = new std::thread_group();
     for (int i = 0; i < GetArg("-rpcthreads", 4); i++)
-        rpc_worker_group->create_thread(boost::bind(&asio::io_service::run, rpc_io_service));
+        rpc_worker_group->create_thread(std::bind(&asio::io_service::run, rpc_io_service));
 }
 
 void StopRPCThreads()
@@ -1017,7 +1017,7 @@ void RPCRunLater(const std::string& name, boost::function<void(void)> func, int6
                                         boost::shared_ptr<deadline_timer>(new deadline_timer(*rpc_io_service))));
     }
     deadlineTimers[name]->expires_from_now(posix_time::seconds(nSeconds));
-    deadlineTimers[name]->async_wait(boost::bind(RPCRunHandler, _1, func));
+    deadlineTimers[name]->async_wait(std::bind(RPCRunHandler, _1, func));
 }
 
 class JSONRequest
@@ -1568,7 +1568,7 @@ int CommandLineRPC(int argc, char *argv[])
     }
     //catch (std::exception& e)
     //{
-    catch (boost::thread_interrupted) {
+    catch (std::thread_interrupted) {
         throw;
     }
     catch (std::exception& e) {
@@ -1613,7 +1613,7 @@ int main(int argc, char *argv[])
             return CommandLineRPC(argc, argv);
         }
     }
-    catch (boost::thread_interrupted) {
+    catch (std::thread_interrupted) {
        throw;
     }
     catch (std::exception& e) {

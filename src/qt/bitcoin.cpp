@@ -142,7 +142,7 @@ int main(int argc, char *argv[])
      Intro::pickDataDirectory();
 
     // ... then bitcoin.conf:
-    if (!boost::filesystem::is_directory(GetDataDir(false)))
+    if (!std::filesystem::is_directory(GetDataDir(false)))
     {
         // This message can not be translated, as translation is not initialized yet
         // (which not yet possible because lang=XX can be overridden in bitcoin.conf in the data directory)
@@ -227,7 +227,7 @@ int main(int argc, char *argv[])
         if (GUIUtil::GetStartOnSystemStartup())
             GUIUtil::SetStartOnSystemStartup(true);
 
-        boost::thread_group threadGroup;
+        std::thread_group threadGroup;
         BitcoinGUI window;
         guiref = &window;
 

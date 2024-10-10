@@ -17,7 +17,7 @@ extern std::string strWalletFileName;
 void StartShutdown();
 bool ShutdownRequested();
 void Shutdown();
-bool AppInit2(boost::thread_group &threadGroup);
+bool AppInit2(std::thread_group &threadGroup);
 std::string HelpMessage();
 
 #endif

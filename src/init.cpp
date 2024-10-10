@@ -19,7 +19,7 @@
 #include "ui_interface.h"
 #include "checkpoints.h"
 
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include <boost/filesystem/fstream.hpp>
 #include <boost/filesystem/convenience.hpp>
 #include <boost/interprocess/sync/file_lock.hpp>
@@ -142,7 +142,7 @@ void Shutdown()
         bitdb.Flush(false);
         StopNode();
         bitdb.Flush(true);
-        boost::filesystem::remove(GetPidFile());
+        std::filesystem::remove(GetPidFile());
         UnregisterWallet(pwalletMain);
         delete pwalletMain;
         NewThread(ExitTimeout, NULL);
@@ -163,14 +163,14 @@ void Shutdown()
     }
  */
     bitdb.Flush(true);
-    boost::filesystem::remove(GetPidFile());
+    std::filesystem::remove(GetPidFile());
     UnregisterWallet(pwalletMain);
     delete pwalletMain;
 }
 
 //
 // Signal handlers are very limited in what they are allowed to do, so:
-void DetectShutdownThread(boost::thread_group* threadGroup)
+void DetectShutdownThread(std::thread_group* threadGroup)
 {
     // bool shutdown = ShutdownRequested();
     // while (fRequestShutdown == false)
@@ -209,8 +209,8 @@ void HandleSIGHUP(int)
 #if !defined(QT_GUI)
 bool AppInit(int argc, char* argv[])
 {
-    boost::thread_group threadGroup;
-    boost::thread* detectShutdownThread = NULL;
+    std::thread_group threadGroup;
+    std::thread* detectShutdownThread = NULL;
 
     bool fRet = false;
     try
@@ -220,7 +220,7 @@ bool AppInit(int argc, char* argv[])
         //
         // If Qt is used, parameters/bitcoin.conf are parsed in qt/bitcoin.cpp's main()
         ParseParameters(argc, argv);
-        if (!boost::filesystem::is_directory(GetDataDir(false)))
+        if (!std::filesystem::is_directory(GetDataDir(false)))
         {
             fprintf(stderr, "Error: Specified directory does not exist\n");
             Shutdown();
@@ -281,7 +281,7 @@ bool AppInit(int argc, char* argv[])
         }
 #endif
 
-        detectShutdownThread = new boost::thread(boost::bind(&DetectShutdownThread, &threadGroup));
+        detectShutdownThread = new std::thread(std::bind(&DetectShutdownThread, &threadGroup));
         fRet = AppInit2(threadGroup);
     }
     catch (std::exception& e) {
@@ -456,7 +456,7 @@ std::string HelpMessage()
 /** Initialize netcoin.
  *  @pre Parameters should be parsed and config file should be read.
  */
-bool AppInit2(boost::thread_group& threadGroup)
+bool AppInit2(std::thread_group& threadGroup)
 {
     // ********************************************************* Step 1: setup
 #ifdef _MSC_VER
@@ -508,7 +508,7 @@ bool AppInit2(boost::thread_group& threadGroup)
     sigaction(SIGHUP, &sa_hup, NULL);
 #endif
 
-    // threadGroup.create_thread(boost::bind(&DetectShutdownThread, &threadGroup));
+    // threadGroup.create_thread(std::bind(&DetectShutdownThread, &threadGroup));
 
     // ********************************************************* Step 2: parameter interactions
 
@@ -647,11 +647,11 @@ bool AppInit2(boost::thread_group& threadGroup)
     std::string strWalletFileName = GetArg("-wallet", "wallet.dat");
 
     // strWalletFileName must be a plain filename without a directory
-    if (strWalletFileName != boost::filesystem::basename(strWalletFileName) + boost::filesystem::extension(strWalletFileName))
+    if (strWalletFileName != std::filesystem::basename(strWalletFileName) + std::filesystem::extension(strWalletFileName))
         return InitError(strprintf(_("Wallet %s resides outside data directory %s."), strWalletFileName.c_str(), strDataDir.c_str()));
 
     // Make sure only a single NetCoin process is using the data directory.
-    boost::filesystem::path pathLockFile = GetDataDir() / ".lock";
+    std::filesystem::path pathLockFile = GetDataDir() / ".lock";
     FILE* file = fopen(pathLockFile.string().c_str(), "a"); // empty lock file; created if it doesn't exist.
     if (file) fclose(file);
     static boost::interprocess::file_lock lock(pathLockFile.string().c_str());
@@ -709,12 +709,12 @@ bool AppInit2(boost::thread_group& threadGroup)
       */
 
         // try moving the database env out of the way
-        boost::filesystem::path pathDatabase = GetDataDir() / "database";
-        boost::filesystem::path pathDatabaseBak = GetDataDir() / strprintf("database.%d.bak", GetTime());
+        std::filesystem::path pathDatabase = GetDataDir() / "database";
+        std::filesystem::path pathDatabaseBak = GetDataDir() / strprintf("database.%d.bak", GetTime());
         try {
-            boost::filesystem::rename(pathDatabase, pathDatabaseBak);
+            std::filesystem::rename(pathDatabase, pathDatabaseBak);
             printf("Moved old %s to %s. Retrying.\n", pathDatabase.string().c_str(), pathDatabaseBak.string().c_str());
-        } catch(boost::filesystem::filesystem_error &error) {
+        } catch(std::filesystem::filesystem_error &error) {
             // failure is ok (well, not really, but it's not worse than what we started with)
         }
 
@@ -1126,7 +1126,7 @@ bool AppInit2(boost::thread_group& threadGroup)
     if (!GetBoolArg("-staking", true))
         printf("Staking disabled\n");
     else
-        threadGroup.create_thread(boost::bind(&ThreadStakeMiner, pwalletMain));
+        threadGroup.create_thread(std::bind(&ThreadStakeMiner, pwalletMain));
 
     // ********************************************************* Step 12: finished
 
@@ -1147,7 +1147,7 @@ bool AppInit2(boost::thread_group& threadGroup)
 #endif
 */
     // Run a thread to flush wallet periodically
-    threadGroup.create_thread(boost::bind(&ThreadFlushWalletDB, boost::ref(pwalletMain->strWalletFile)));
+    threadGroup.create_thread(std::bind(&ThreadFlushWalletDB, boost::ref(pwalletMain->strWalletFile)));
 
     // return true;
     return !fRequestShutdown;

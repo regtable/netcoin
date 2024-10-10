@@ -6,7 +6,7 @@
 #include <QSettings>
 #include <QMessageBox>
 
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 /* Minimum free space (in bytes) needed for data directory */
 static const int64_t GB_BYTES = 1000000000LL;
@@ -52,7 +52,7 @@ FreespaceChecker::FreespaceChecker(Intro *intro)
 
 void FreespaceChecker::check()
 {
-    namespace fs = boost::filesystem;
+    namespace fs = std::filesystem;
     QString dataDirStr = intro->getPathToCheck();
     fs::path dataDir = fs::path(dataDirStr.toStdString());
     int64_t freeBytesAvailable = 0;
@@ -137,7 +137,7 @@ QString Intro::getDefaultDataDirectory()
 
 void Intro::pickDataDirectory()
 {
-    namespace fs = boost::filesystem;;
+    namespace fs = std::filesystem;;
     QSettings settings;
     /* If data directory provided on command line, no need to look at settings
        or show a picking dialog */

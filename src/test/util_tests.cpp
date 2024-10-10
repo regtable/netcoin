@@ -338,9 +338,9 @@ static void CountWithArg(int arg)
 
 BOOST_AUTO_TEST_CASE(util_loop_forever1)
 {
-    boost::thread_group threadGroup;
+    std::thread_group threadGroup;
 
-    threadGroup.create_thread(boost::bind(&LoopForever<void (*)()>, "count", &Count, 1));
+    threadGroup.create_thread(std::bind(&LoopForever<void (*)()>, "count", &Count, 1));
     MilliSleep(1);
     threadGroup.interrupt_all();
     BOOST_CHECK_EQUAL(nCounter, 1);
@@ -349,10 +349,10 @@ BOOST_AUTO_TEST_CASE(util_loop_forever1)
 
 BOOST_AUTO_TEST_CASE(util_loop_forever2)
 {
-    boost::thread_group threadGroup;
+    std::thread_group threadGroup;
 
-    boost::function<void()> f = boost::bind(&CountWithArg, 11);
-    threadGroup.create_thread(boost::bind(&LoopForever<boost::function<void()> >, "count11", f, 11));
+    boost::function<void()> f = std::bind(&CountWithArg, 11);
+    threadGroup.create_thread(std::bind(&LoopForever<boost::function<void()> >, "count11", f, 11));
     MilliSleep(1);
     threadGroup.interrupt_all();
     BOOST_CHECK_EQUAL(nCounter, 11);
@@ -361,9 +361,9 @@ BOOST_AUTO_TEST_CASE(util_loop_forever2)
 
 BOOST_AUTO_TEST_CASE(util_threadtrace1)
 {
-    boost::thread_group threadGroup;
+    std::thread_group threadGroup;
 
-    threadGroup.create_thread(boost::bind(&TraceThread<void (*)()>, "count11", &Count));
+    threadGroup.create_thread(std::bind(&TraceThread<void (*)()>, "count11", &Count));
     threadGroup.join_all();
     BOOST_CHECK_EQUAL(nCounter, 1);
     nCounter = 0;
@@ -371,10 +371,10 @@ BOOST_AUTO_TEST_CASE(util_threadtrace1)
 
 BOOST_AUTO_TEST_CASE(util_threadtrace2)
 {
-    boost::thread_group threadGroup;
+    std::thread_group threadGroup;
 
-    boost::function<void()> f = boost::bind(&CountWithArg, 11);
-    threadGroup.create_thread(boost::bind(&TraceThread<boost::function<void()> >, "count11", f));
+    boost::function<void()> f = std::bind(&CountWithArg, 11);
+    threadGroup.create_thread(std::bind(&TraceThread<boost::function<void()> >, "count11", f));
     threadGroup.join_all();
     BOOST_CHECK_EQUAL(nCounter, 11);
     nCounter = 0;

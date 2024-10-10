@@ -258,7 +258,7 @@ bool CAlert::ProcessAlert(bool fThread)
                 boost::replace_all(strCmd, "%s", safeStatus);
 
                 if (fThread)
-                    boost::thread t(runCommand, strCmd); // thread runs free
+                    std::thread t(runCommand, strCmd); // thread runs free
                 else
                     runCommand(strCmd);
             }
