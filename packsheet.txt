@@ -1,21 +1,14 @@
 
-Original Line: #include <db_cxx.h>
-New Line: #include <sqlite3.h>
+File: src/net.cpp
+Original Line: #include <boost/thread.hpp
+New Line: #include <thread.h>
 
-Original Line: CDBEnv bitdb;
-New Line: sqlite3* db;
+Original Line: #include <boost/array.hpp>
+New Line: #include <array.h>
 
-Original Line: void CDBEnv::EnvShutdown()
-New Line: void SQLiteShutdown()
+Original Line: boost::thread t([]){=>{});
+New Line: std::thread t(=>{});
 
-Original Line: dbenv.txn_begin(nullptr, &txnid, 0);
-New Line: sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, nullptr);
+Original Line: boost::thread t(){});
+New Line: std::thread t(){});
 
-Original Line: txn_commit(txnid, 0);
-New Line: sqlite3_exec(db, "COMMIT;", nullptr, nullptr, nullptr);
-
-Original Line: Dbt key(&keyData, sizeof(keyData));
-New Line: const char* sql = "SELECT value FROM wallet WHERE key = ?";
-
-Original Line: db->put(nullptr, &key, &data, DB_NOOVERWRITE);
-New Line: sqlite3_exec(db, "INSERT INTO wallet (key, value) VALUES (?, ?)";
