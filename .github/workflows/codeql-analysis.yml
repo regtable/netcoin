@@ -4,7 +4,7 @@ on:
   push:
     branches: [ main ]
   pull_request:
-  workflow_dispatch:  # 🔘 Enables manual trigger in GitHub UI
+  workflow_dispatch:
 
 jobs:
   build-linux:
@@ -19,6 +19,11 @@ jobs:
           sudo apt install -y qt5-qmake qtbase5-dev qttools5-dev-tools \
             build-essential libboost-all-dev libdb-dev libdb++-dev \
             libssl-dev libqrencode-dev libminiupnpc-dev
+
+      - name: Fix permissions
+        run: |
+          chmod +x ./src/leveldb/build_detect_platform || true
+          chmod -R 775 ./src/leveldb
 
       - name: Build
         run: |
@@ -35,6 +40,11 @@ jobs:
         run: |
           brew install qt boost openssl libqrencode miniupnpc berkeley-db
 
+      - name: Fix permissions
+        run: |
+          chmod +x ./src/leveldb/build_detect_platform || true
+          chmod -R 775 ./src/leveldb
+
       - name: Build
         run: |
           qmake "CONFIG+=release"
@@ -46,21 +56,28 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Setup MSYS2 with required packages
+      - name: Setup MSYS2 (no prompts)
         uses: msys2/setup-msys2@v2
         with:
           update: true
           install: >-
-            mingw-w64-x86_64-toolchain
-            mingw-w64-x86_64-qt5
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-make
+            mingw-w64-x86_64-qt5-base
+            mingw-w64-x86_64-qt5-tools
             mingw-w64-x86_64-openssl
             mingw-w64-x86_64-boost
             mingw-w64-x86_64-libqrencode
             mingw-w64-x86_64-miniupnpc
 
+      - name: Fix LevelDB Permissions
+        shell: msys2 {0}
+        run: |
+          chmod +x ./src/leveldb/build_detect_platform || true
+          chmod -R 775 ./src/leveldb
+
       - name: Build with MinGW
         shell: msys2 {0}
         run: |
-          cd $GITHUB_WORKSPACE
           qmake "CONFIG+=release"
           make -j$(nproc)
