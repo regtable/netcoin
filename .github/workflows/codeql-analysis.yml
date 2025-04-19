@@ -1,70 +1,77 @@
-# For most projects, this workflow file will not need changing; you simply need
-# to commit it to your repository.
-#
-# You may wish to alter this file to override the set of languages analyzed,
-# or to provide custom queries or build logic.
-#
-# ******** NOTE ********
-# We have attempted to detect the languages in your repository. Please check
-# the `language` matrix defined below to confirm you have the correct set of
-# supported CodeQL languages.
-#
-name: "CodeQL"
+name: Qt Wallet Cross-Platform Build
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
-    # The branches below must be a subset of the branches above
-    branches: [ master ]
-  schedule:
-    - cron: '15 12 * * 4'
 
 jobs:
-  analyze:
-    name: Analyze
+  build-linux:
     runs-on: ubuntu-latest
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
-
-    strategy:
-      fail-fast: false
-      matrix:
-        language: [ 'cpp', 'python' ]
-        # CodeQL supports [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby' ]
-        # Learn more about CodeQL language support at https://git.io/codeql-language-support
-
+    name: Build for Linux
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-    # Initializes the CodeQL tools for scanning.
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v1
-      with:
-        languages: ${{ matrix.language }}
-        # If you wish to specify custom queries, you can do so here or in a config file.
-        # By default, queries listed here will override any specified in a config file.
-        # Prefix the list here with "+" to use these queries and those in the config file.
-        # queries: ./path/to/local/query, your-org/your-repo/queries@main
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y qt5-qmake qtbase5-dev qttools5-dev-tools \
+            build-essential libboost-all-dev libdb-dev libdb++-dev \
+            libssl-dev libqrencode-dev libminiupnpc-dev
 
-    # Autobuild attempts to build any compiled languages  (C/C++, C#, or Java).
-    # If this step fails, then you should remove it and run the build manually (see below)
-    - name: Autobuild
-      uses: github/codeql-action/autobuild@v1
+      - name: Build
+        run: |
+          qmake "CONFIG+=release"
+          make -j$(nproc)
 
-    # ℹ️ Command-line programs to run using the OS shell.
-    # 📚 https://git.io/JvXDl
+  build-mac:
+    runs-on: macos-latest
+    name: Build for macOS
+    steps:
+      - uses: actions/checkout@v3
 
-    # ✏️ If the Autobuild fails above, remove it and uncomment the following three lines
-    #    and modify them (or add more) to build your code if your project
-    #    uses a compiled language
+      - name: Install dependencies
+        run: |
+          brew install qt boost openssl libqrencode miniupnpc berkeley-db
 
-    #- run: |
-    #   make bootstrap
-    #   make release
+      - name: Build
+        run: |
+          qmake "CONFIG+=release"
+          make -j$(sysctl -n hw.ncpu)
 
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v1
+  build-win:
+    runs-on: windows-latest
+    name: Build for Windows (MinGW)
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          update: true
+          install: >-
+            mingw-w64-x86_64-toolchain
+            mingw-w64-x86_64-qt5
+            mingw-w64-x86_64-openssl
+            mingw-w64-x86_64-boost
+            mingw-w64-x86_64-libqrencode
+            mingw-w64-x86_64-miniupnpc
+
+      - name: Build with MinGW
+        shell: msys2 {0}
+        run: |
+          cd $GITHUB_WORKSPACE
+          qmake "CONFIG+=release" ^
+            BOOST_LIB_SUFFIX=-mgw83-mt-s-x64-1_68 ^
+            BOOST_INCLUDE_PATH=C:/deps/64bit/boost_1_68_0 ^
+            BOOST_LIB_PATH=C:/deps/64bit/boost_1_68_0/stage/lib ^
+            BDB_INCLUDE_PATH=C:/deps/64bit/db-6.2.32.NC/build_unix ^
+            BDB_LIB_PATH=C:/deps/64bit/db-6.2.32.NC/build_unix ^
+            OPENSSL_INCLUDE_PATH=C:/deps/64bit/openssl-1.0.2u/include ^
+            OPENSSL_LIB_PATH=C:/deps/64bit/openssl-1.0.2u ^
+            MINIUPNPC_INCLUDE_PATH=C:/deps/64bit/miniupnpc ^
+            MINIUPNPC_LIB_PATH=C:/deps/64bit/miniupnpc ^
+            QRENCODE_INCLUDE_PATH=C:/deps/64bit/qrencode-4.0.2 ^
+            QRENCODE_LIB_PATH=C:/deps/64bit/qrencode-4.0.2/.libs
+
+          make -j$(nproc)
