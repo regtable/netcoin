@@ -1,0 +1,65 @@
+name: Build Netcoin Qt release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+env:
+  BUILD_DIR: build
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            qtbase5-dev qttools5-dev qttools5-dev-tools \
+            libssl-dev libdb++-dev \
+            libboost-system-dev libboost-filesystem-dev libboost-program-options-dev \
+            libboost-thread-dev libboost-chrono-dev libboost-date-time-dev \
+            libminiupnpc-dev libqrencode-dev
+
+      - name: Configure build
+        run: |
+          mkdir -p "$BUILD_DIR"
+          cd "$BUILD_DIR"
+          qmake ../netcoin-qt.pro "USE_QRCODE=1" "USE_UPNP=1" "RELEASE=1" "CONFIG+=release" "CONFIG-=debug"
+
+      - name: Build
+        run: |
+          cd "$BUILD_DIR"
+          make -j"$(nproc)"
+
+      - name: Package artifact
+        run: |
+          cd "$BUILD_DIR"
+          BIN_PATH="$(find . -type f -executable -name netcoin | head -n 1)"
+          if [ -z "$BIN_PATH" ]; then
+            echo "Netcoin binary not found" >&2
+            exit 1
+          fi
+          cp "$BIN_PATH" netcoin
+          strip netcoin || true
+          cp ../README.md README.md
+          tar -czf netcoin-linux.tar.gz netcoin README.md
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: netcoin-linux
+          path: build/netcoin-linux.tar.gz
+
+      - name: Publish release assets
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/netcoin-linux.tar.gz
+          fail_on_unmatched_files: true
